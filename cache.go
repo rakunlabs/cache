@@ -31,7 +31,7 @@ type Cacher[K comparable, V any] interface {
 	Set(key K, value V) error
 }
 
-func New(_ context.Context, opts ...Option) *Cache {
+func New(_ context.Context, opts ...Option) (*Cache, error) {
 	o := &option{}
 	for _, opt := range opts {
 		opt(o)
@@ -42,7 +42,7 @@ func New(_ context.Context, opts ...Option) *Cache {
 		ttl:      o.TTL,
 
 		typeStorage: o.TypeStorage,
-	}
+	}, nil
 }
 
 func Port[K comparable, V any](c *Cache) (Cacher[K, V], error) {

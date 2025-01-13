@@ -14,7 +14,10 @@ func ExampleCache() {
 		TTL:      30 * time.Minute,
 	}
 
-	c := cache.New(context.Background(), cfg.ToOption())
+	c, err := cache.New(context.Background(), cfg.ToOption())
+	if err != nil {
+		panic(err)
+	}
 
 	vcache, err := cache.Port[string, int](c)
 	if err != nil {
