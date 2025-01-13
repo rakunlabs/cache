@@ -9,6 +9,7 @@ import (
 )
 
 func ExampleCache() {
+	ctx := context.Background()
 	cfg := cache.Config{
 		MaxItems: 1_000,
 		TTL:      30 * time.Minute,
@@ -24,11 +25,11 @@ func ExampleCache() {
 		panic(err)
 	}
 
-	if err := vcache.Set("key", 42); err != nil {
+	if err := vcache.Set(ctx, "key", 42); err != nil {
 		panic(err)
 	}
 
-	v, ok, err := vcache.Get("key")
+	v, ok, err := vcache.Get(ctx, "key")
 	if err != nil {
 		panic(err)
 	}

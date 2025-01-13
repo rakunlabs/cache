@@ -27,8 +27,8 @@ type Cache struct {
 }
 
 type Cacher[K comparable, V any] interface {
-	Get(key K) (V, bool, error)
-	Set(key K, value V) error
+	Get(ctx context.Context, key K) (V, bool, error)
+	Set(ctx context.Context, key K, value V) error
 }
 
 func New(_ context.Context, opts ...Option) (*Cache, error) {

@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"context"
 	"time"
 
 	"github.com/samber/hot"
@@ -39,11 +40,11 @@ func New[K comparable, V any](cfg Config) (*Memory[K, V], error) {
 	}, nil
 }
 
-func (m *Memory[K, V]) Get(key K) (V, bool, error) {
+func (m *Memory[K, V]) Get(_ context.Context, key K) (V, bool, error) {
 	return m.h.Get(key)
 }
 
-func (m *Memory[K, V]) Set(key K, value V) error {
+func (m *Memory[K, V]) Set(_ context.Context, key K, value V) error {
 	m.h.Set(key, value)
 
 	return nil
