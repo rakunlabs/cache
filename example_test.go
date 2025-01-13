@@ -1,0 +1,40 @@
+package cache_test
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/worldline-go/cache"
+)
+
+func ExampleCache() {
+	cfg := cache.Config{
+		MaxItems: 1_000,
+		TTL:      30 * time.Minute,
+	}
+
+	c := cache.New(context.Background(), cfg.ToOption())
+
+	vcache, err := cache.Port[string, int](c)
+	if err != nil {
+		panic(err)
+	}
+
+	if err := vcache.Set("key", 42); err != nil {
+		panic(err)
+	}
+
+	v, ok, err := vcache.Get("key")
+	if err != nil {
+		panic(err)
+	}
+
+	if !ok {
+		panic("key not found")
+	}
+
+	fmt.Println(v)
+	// Output:
+	// 42
+}
