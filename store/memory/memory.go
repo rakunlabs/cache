@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/samber/hot"
+	"github.com/worldline-go/cache"
 )
 
 var (
@@ -13,15 +14,15 @@ var (
 )
 
 type Config struct {
-	MaxItems int
-	TTL      time.Duration
+	MaxItems int           `cfg:"max_items" json:"max_items"`
+	TTL      time.Duration `cfg:"ttl"       json:"ttl"`
 }
 
 type Memory[K comparable, V any] struct {
 	h *hot.HotCache[K, V]
 }
 
-func New[K comparable, V any](cfg Config) (*Memory[K, V], error) {
+func Store[K comparable, V any](ctx context.Context, cfg Config) (cache.Cacher[K, V], error) {
 	if cfg.MaxItems == 0 {
 		cfg.MaxItems = DefaultMaxItems
 	}

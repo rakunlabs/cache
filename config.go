@@ -7,6 +7,8 @@ type Config struct {
 	MaxItems int `cfg:"max_items" json:"max_items"`
 	// TTL is the time to live for each item in the cache.
 	TTL time.Duration `cfg:"ttl" json:"ttl"`
+	// Store is the configuration for the store.
+	Store any `cfg:"store" json:"store"`
 }
 
 func (c *Config) SetDefault(maxItems int, ttl time.Duration) {
@@ -21,7 +23,8 @@ func (c *Config) SetDefault(maxItems int, ttl time.Duration) {
 
 func (c *Config) ToOption() Option {
 	return func(o *option) {
-		o.MaxItems = c.MaxItems
-		o.TTL = c.TTL
+		o.Config["max_items"] = c.MaxItems
+		o.Config["ttl"] = c.TTL
+		o.Config["store"] = c.Store
 	}
 }

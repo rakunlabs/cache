@@ -1,8 +1,11 @@
 module github.com/worldline-go/cache
 
-go 1.23
+go 1.22
 
-require github.com/samber/hot v0.5.2
+require (
+	github.com/samber/hot v0.5.2
+	github.com/worldline-go/struct2 v1.3.1
+)
 
 require (
 	github.com/DmitriyVTitov/size v1.5.0 // indirect

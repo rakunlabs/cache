@@ -3,27 +3,19 @@ package cache
 import (
 	"context"
 	"errors"
-	"time"
+	"fmt"
 
-	"github.com/worldline-go/cache/plugins/memory"
+	"github.com/worldline-go/struct2"
 )
 
-type Type int
+var ErrStoreNotExist = errors.New("store does not exist")
 
-const (
-	TypeMemory Type = iota
-)
-
-var ErrInvalidType = errors.New("invalid type")
+type Store[K comparable, V any, C any] func(ctx context.Context, config C) (Cacher[K, V], error)
 
 // //////////////////////////////////////////////////////////////////////////
 
-type Cache struct {
-	maxItems int
-	ttl      time.Duration
-
-	// Type is the type of cache to use.
-	typeStorage Type
+type Cache[K comparable, V any] struct {
+	Cacher[K, V]
 }
 
 type Cacher[K comparable, V any] interface {
@@ -31,28 +23,31 @@ type Cacher[K comparable, V any] interface {
 	Set(ctx context.Context, key K, value V) error
 }
 
-func New(_ context.Context, opts ...Option) (*Cache, error) {
-	o := &option{}
+func New[K comparable, V any, C any](ctx context.Context, store Store[K, V, C], opts ...Option) (Cacher[K, V], error) {
+	if store == nil {
+		return nil, ErrStoreNotExist
+	}
+
+	o := &option{
+		Config: make(map[string]interface{}),
+	}
 	for _, opt := range opts {
 		opt(o)
 	}
 
-	return &Cache{
-		maxItems: o.MaxItems,
-		ttl:      o.TTL,
+	var cfg C
 
-		typeStorage: o.TypeStorage,
-	}, nil
-}
-
-func Port[K comparable, V any](c *Cache) (Cacher[K, V], error) {
-	switch c.typeStorage {
-	case TypeMemory:
-		return memory.New[K, V](memory.Config{
-			MaxItems: c.maxItems,
-			TTL:      c.ttl,
-		})
+	decoder := struct2.Decoder{TagName: "cfg"}
+	if err := decoder.Decode(o, &cfg); err != nil {
+		return nil, fmt.Errorf("failed to decode config: %w", err)
 	}
 
-	return nil, ErrInvalidType
+	cacher, err := store(ctx, cfg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get cacher: %w", err)
+	}
+
+	return &Cache[K, V]{
+		Cacher: cacher,
+	}, nil
 }
