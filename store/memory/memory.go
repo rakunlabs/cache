@@ -31,13 +31,13 @@ func Store[K comparable, V any](ctx context.Context, cfg Config) (cache.Cacher[K
 		cfg.TTL = DefaultTTL
 	}
 
-	cache := hot.NewHotCache[K, V](hot.LRU, cfg.MaxItems).
+	c := hot.NewHotCache[K, V](hot.LRU, cfg.MaxItems).
 		WithTTL(cfg.TTL).
 		WithJanitor().
 		Build()
 
 	return &Memory[K, V]{
-		h: cache,
+		h: c,
 	}, nil
 }
 
