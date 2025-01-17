@@ -12,7 +12,7 @@ go get github.com/worldline-go/cache
 priceCache, err := cache.New[string, int](ctx,
     memory.Store,
     cache.WithMaxItems(100),
-    cache.WithTTL(60),
+    cache.WithTTL(60 * time.Second),
 )
 
 err := priceCache.Set(ctx, "key", 100)

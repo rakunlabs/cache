@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/worldline-go/cache"
 	"github.com/worldline-go/cache/store/memory"
@@ -14,7 +15,7 @@ func main() {
 	c, err := cache.New[string, int](ctx,
 		memory.Store,
 		cache.WithMaxItems(100),
-		cache.WithTTL(60),
+		cache.WithTTL(60*time.Second),
 	)
 	if err != nil {
 		panic(err)
