@@ -14,10 +14,6 @@ type Store[K comparable, V any, C any] func(ctx context.Context, config C) (Cach
 
 // //////////////////////////////////////////////////////////////////////////
 
-type Cache[K comparable, V any] struct {
-	Cacher[K, V]
-}
-
 type Cacher[K comparable, V any] interface {
 	Get(ctx context.Context, key K) (V, bool, error)
 	Set(ctx context.Context, key K, value V) error
@@ -47,7 +43,5 @@ func New[K comparable, V any, C any](ctx context.Context, store Store[K, V, C], 
 		return nil, fmt.Errorf("failed to get cacher: %w", err)
 	}
 
-	return &Cache[K, V]{
-		Cacher: cacher,
-	}, nil
+	return cacher, nil
 }
