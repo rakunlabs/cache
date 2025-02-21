@@ -1,7 +1,6 @@
-package main
+package example_test
 
 import (
-	"context"
 	"fmt"
 	"sync"
 	"testing"
@@ -12,12 +11,12 @@ import (
 )
 
 func Test_Memory(t *testing.T) {
-	ctx := context.Background()
-
-	c, err := cache.New[string, int](ctx,
+	c, err := cache.New[string, int](t.Context(),
 		memory.Store,
-		cache.WithMaxItems(100),
-		cache.WithTTL(60*time.Second),
+		cache.WithStoreConfig(memory.Config{
+			MaxItems: 100,
+			TTL:      10 * time.Minute,
+		}),
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -30,7 +29,7 @@ func Test_Memory(t *testing.T) {
 		go func(i int) {
 			defer w.Done()
 
-			if err := c.Set(ctx, fmt.Sprintf("key-%d", i), i); err != nil {
+			if err := c.Set(t.Context(), fmt.Sprintf("key-%d", i), i); err != nil {
 				t.Error(err)
 			}
 		}(i)
@@ -42,7 +41,7 @@ func Test_Memory(t *testing.T) {
 		w.Add(1)
 		go func(i int) {
 			defer w.Done()
-			v, ok, err := c.Get(ctx, fmt.Sprintf("key-%d", i))
+			v, ok, err := c.Get(t.Context(), fmt.Sprintf("key-%d", i))
 			if err != nil {
 				t.Error(err)
 			}

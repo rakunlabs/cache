@@ -50,3 +50,9 @@ func (m *Memory[K, V]) Set(_ context.Context, key K, value V) error {
 
 	return nil
 }
+
+func (m *Memory[K, V]) Delete(_ context.Context, key K) error {
+	m.h.Delete(key)
+
+	return nil
+}
