@@ -3,10 +3,10 @@ module github.com/worldline-go/cache
 go 1.24
 
 require (
-	github.com/redis/go-redis/v9 v9.7.0
+	github.com/redis/go-redis/v9 v9.7.1
 	github.com/samber/hot v0.5.2
 	github.com/stretchr/testify v1.10.0
-	github.com/twmb/tlscfg v1.2.1
+	github.com/worldline-go/conn v0.1.0
 	github.com/worldline-go/test v0.2.6
 )
 
@@ -65,6 +65,7 @@ require (
 	github.com/testcontainers/testcontainers-go v0.35.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
+	github.com/twmb/tlscfg v1.2.1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
 	go.opentelemetry.io/otel v1.24.0 // indirect

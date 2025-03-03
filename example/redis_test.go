@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"github.com/worldline-go/cache"
 	"github.com/worldline-go/cache/store/redis"
+	"github.com/worldline-go/conn/connredis"
 	"github.com/worldline-go/test/container"
 )
 
@@ -29,8 +30,8 @@ func TestExampleTestSuiteRedis(t *testing.T) {
 }
 
 func (s *RedisSuite) TestCache() {
-	redisClient, err := redis.New(redis.Connection{
-		Addr: s.container.Address(),
+	redisClient, err := connredis.New(connredis.Config{
+		Address: s.container.Address(),
 	})
 	if err != nil {
 		s.T().Fatal(err)

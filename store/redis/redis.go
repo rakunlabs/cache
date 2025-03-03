@@ -14,11 +14,11 @@ type Config struct {
 }
 
 type Cache struct {
-	client *Redis
+	client redis.UniversalClient
 	cfg    Config
 }
 
-func Store(v *Redis) func(ctx context.Context, cfg Config) (cache.Cacher[string, string], error) {
+func Store(v redis.UniversalClient) func(ctx context.Context, cfg Config) (cache.Cacher[string, string], error) {
 	return func(ctx context.Context, cfg Config) (cache.Cacher[string, string], error) {
 		return &Cache{
 			client: v,
