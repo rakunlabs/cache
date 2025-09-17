@@ -1,4 +1,4 @@
-package example_test
+package memory_test
 
 import (
 	"fmt"

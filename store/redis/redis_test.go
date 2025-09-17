@@ -1,4 +1,4 @@
-package example_test
+package redis_test
 
 import (
 	"testing"
@@ -25,7 +25,7 @@ func (s *RedisSuite) TearDownSuite() {
 	s.container.Stop(s.T())
 }
 
-func TestExampleTestSuiteRedis(t *testing.T) {
+func TestRedis(t *testing.T) {
 	suite.Run(t, new(RedisSuite))
 }
 
