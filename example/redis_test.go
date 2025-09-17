@@ -9,16 +9,16 @@ import (
 	"github.com/worldline-go/cache"
 	"github.com/worldline-go/cache/store/redis"
 	"github.com/worldline-go/conn/connredis"
-	"github.com/worldline-go/test/container"
+	"github.com/worldline-go/test/container/containerredis"
 )
 
 type RedisSuite struct {
 	suite.Suite
-	container *container.RedisContainer
+	container *containerredis.Container
 }
 
 func (s *RedisSuite) SetupSuite() {
-	s.container = container.Redis(s.T())
+	s.container = containerredis.New(s.T())
 }
 
 func (s *RedisSuite) TearDownSuite() {

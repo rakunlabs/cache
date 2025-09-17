@@ -1,4 +1,4 @@
-# cache
+# cache 🔗
 
 Simple cache with using different libraries.
 
@@ -18,17 +18,19 @@ Delete(ctx context.Context, key K) error
 
 ### memory
 
+To not use max items and ttl, you can pass empty config `cache.WithStoreConfig(&memory.Config{})`.
+
 ```go
 priceCache, err := cache.New[string, int](ctx,
     memory.Store,
-    cache.WithStoreConfig(memory.Config{
+    cache.WithStoreConfig(&memory.Config{
         MaxItems: 100,
         TTL:      10 * time.Minute,
     }),
 )
 
 err := priceCache.Set(ctx, "key", 100)
-v, ok, err := vcache.Get(ctx, "key")
+v, ok, err := priceCache.Get(ctx, "key")
 ```
 
 ### redis
