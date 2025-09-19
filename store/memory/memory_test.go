@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/worldline-go/cache"
-	"github.com/worldline-go/cache/store/memory"
+	"github.com/rakunlabs/cache"
+	"github.com/rakunlabs/cache/store/memory"
 )
 
 func Test_Memory(t *testing.T) {

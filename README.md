@@ -1,15 +1,15 @@
 # cache 🔗
 
-[![License](https://img.shields.io/github/license/worldline-go/cache?color=red&style=flat-square)](https://raw.githubusercontent.com/worldline-go/cache/main/LICENSE)
-[![Coverage](https://img.shields.io/sonar/coverage/worldline-go_cache?logo=sonarcloud&server=https%3A%2F%2Fsonarcloud.io&style=flat-square)](https://sonarcloud.io/summary/overall?id=worldline-go_cache)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/worldline-go/cache/test.yml?branch=main&logo=github&style=flat-square&label=ci)](https://github.com/worldline-go/cache/actions)
-[![Go Report Card](https://goreportcard.com/badge/github.com/worldline-go/cache?style=flat-square)](https://goreportcard.com/report/github.com/worldline-go/cache)
-[![Go PKG](https://raw.githubusercontent.com/worldline-go/guide/main/badge/custom/reference.svg)](https://pkg.go.dev/github.com/worldline-go/cache)
+[![License](https://img.shields.io/github/license/rakunlabs/cache?color=red&style=flat-square)](https://raw.githubusercontent.com/rakunlabs/cache/main/LICENSE)
+[![Coverage](https://img.shields.io/sonar/coverage/rakunlabs_cache?logo=sonarcloud&server=https%3A%2F%2Fsonarcloud.io&style=flat-square)](https://sonarcloud.io/summary/overall?id=rakunlabs_cache)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/rakunlabs/cache/test.yml?branch=main&logo=github&style=flat-square&label=ci)](https://github.com/rakunlabs/cache/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/rakunlabs/cache?style=flat-square)](https://goreportcard.com/report/github.com/rakunlabs/cache)
+[![Go PKG](https://raw.githubusercontent.com/rakunlabs/guide/main/badge/custom/reference.svg)](https://pkg.go.dev/github.com/rakunlabs/cache)
 
 Simple cache with using different libraries.
 
 ```sh
-go get github.com/worldline-go/cache
+go get github.com/rakunlabs/cache
 ```
 
 ## Usage
@@ -47,7 +47,7 @@ v, ok, err := priceCache.Get(ctx, "key")
 
 ### redis
 
-Use [github.com/worldline-go/conn/connredis](https://github.com/worldline-go/conn/connredis) to create a redis client.
+Get a redis client and give it to the cache.
 
 ```go
 redisClient, err := connredis.New(connredis.Config{

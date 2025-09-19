@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rakunlabs/cache"
+	"github.com/rakunlabs/cache/store/redis"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"github.com/worldline-go/cache"
-	"github.com/worldline-go/cache/store/redis"
 	"github.com/worldline-go/conn/connredis"
 	"github.com/worldline-go/test/container/containerredis"
 )

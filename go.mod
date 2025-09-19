@@ -1,4 +1,4 @@
-module github.com/worldline-go/cache
+module github.com/rakunlabs/cache
 
 go 1.24
 

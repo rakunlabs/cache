@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/worldline-go/cache"
+	"github.com/rakunlabs/cache"
 )
 
 var (

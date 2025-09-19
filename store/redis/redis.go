@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/rakunlabs/cache"
 	"github.com/redis/go-redis/v9"
-	"github.com/worldline-go/cache"
 )
 
 type Config struct {
