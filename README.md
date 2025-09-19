@@ -4,7 +4,7 @@
 [![Coverage](https://img.shields.io/sonar/coverage/rakunlabs_cache?logo=sonarcloud&server=https%3A%2F%2Fsonarcloud.io&style=flat-square)](https://sonarcloud.io/summary/overall?id=rakunlabs_cache)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/rakunlabs/cache/test.yml?branch=main&logo=github&style=flat-square&label=ci)](https://github.com/rakunlabs/cache/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rakunlabs/cache?style=flat-square)](https://goreportcard.com/report/github.com/rakunlabs/cache)
-[![Go PKG](https://raw.githubusercontent.com/rakunlabs/guide/main/badge/custom/reference.svg)](https://pkg.go.dev/github.com/rakunlabs/cache)
+[![Go PKG](https://raw.githubusercontent.com/rakunlabs/.github/main/assets/badges/gopkg.svg)](https://pkg.go.dev/github.com/rakunlabs/cache)
 
 Simple cache with using different libraries.
 
