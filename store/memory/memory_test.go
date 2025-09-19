@@ -57,6 +57,55 @@ func Test_Memory(t *testing.T) {
 	}
 }
 
+func Test_MemoryGetSet(t *testing.T) {
+	c, err := cache.New[string, int](t.Context(),
+		memory.Store,
+		cache.WithStoreConfig(&memory.Config{}),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	count := 0
+
+	wg := sync.WaitGroup{}
+
+	for range 1000 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			v, err := c.GetSet(t.Context(), "key-1", func() (int, error) {
+				count++
+				return 42, nil
+			})
+			if err != nil {
+				t.Error(err)
+			}
+			if v != 42 {
+				t.Error("value not match")
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	if count != 1 {
+		t.Errorf("function called %d times, want 1", count)
+	}
+
+	// Verify the value is set
+	v, ok, err := c.Get(t.Context(), "key-1")
+	if err != nil {
+		t.Error(err)
+	}
+	if !ok {
+		t.Error("key not found after GetSet")
+	}
+	if v != 42 {
+		t.Error("value not match after GetSet")
+	}
+}
+
 func Test_Memory_NoTTL_NoLimit(t *testing.T) {
 	// Test with TTL=0 (no expiration) and MaxItems=0 (no limit)
 	c, err := cache.New[string, int](t.Context(),

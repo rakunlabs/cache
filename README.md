@@ -22,6 +22,12 @@ Set(ctx context.Context, key K, value V) error
 Delete(ctx context.Context, key K) error
 ```
 
+Additonal function for help get-set together.
+
+```go
+GetSet(ctx context.Context, key K, fn func() (V, error)) (V, error)
+```
+
 ### memory
 
 To not use max items and ttl, you can pass empty config `cache.WithStoreConfig(&memory.Config{})`.
