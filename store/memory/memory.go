@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/rakunlabs/cache"
+	"github.com/rakunlabs/tummy"
 )
 
 var (
@@ -85,7 +86,7 @@ func (m *Memory[K, V]) cleanup() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	now := time.Now()
+	now := tummy.Now()
 	for m.ll.Len() > 0 {
 		e := m.ll.Back()
 		it := e.Value.(*item[K, V])
@@ -117,7 +118,7 @@ func (m *Memory[K, V]) Get(_ context.Context, key K) (V, bool, error) {
 	}
 
 	// Check expiration only if TTL is enabled
-	if m.ttl > 0 && time.Now().After(it.expiration) {
+	if m.ttl > 0 && tummy.Now().After(it.expiration) {
 		m.removeItem(it)
 		var zero V
 
@@ -137,7 +138,7 @@ func (m *Memory[K, V]) Set(_ context.Context, key K, value V) error {
 	if ok {
 		it.value = value
 		if m.ttl > 0 {
-			it.expiration = time.Now().Add(m.ttl)
+			it.expiration = tummy.Now().Add(m.ttl)
 		}
 		m.moveToFront(it)
 
@@ -150,7 +151,7 @@ func (m *Memory[K, V]) Set(_ context.Context, key K, value V) error {
 		value: value,
 	}
 	if m.ttl > 0 {
-		it.expiration = time.Now().Add(m.ttl)
+		it.expiration = tummy.Now().Add(m.ttl)
 	}
 	it.element = m.ll.PushFront(it)
 	m.items[key] = it
