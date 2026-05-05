@@ -3,6 +3,7 @@ package memory
 import (
 	"container/list"
 	"context"
+	"maps"
 	"sync"
 	"time"
 
@@ -122,11 +123,12 @@ func (m *Memory[K, V]) removeItem(it *item[K, V]) {
 // its peak size, releasing memory held by unused hash buckets.
 func (m *Memory[K, V]) compactIfNeeded() {
 	current := len(m.items)
-	if m.peakItems >= m.compactThreshold && current <= m.peakItems/4 {
+	gap := m.peakItems - current
+	// Compact when the wasted space exceeds the threshold AND
+	// the current size is less than half of peak (meaningful relative waste).
+	if gap > m.compactThreshold && current < m.peakItems/2 {
 		newItems := make(map[any]*item[K, V], current)
-		for k, v := range m.items {
-			newItems[k] = v
-		}
+		maps.Copy(newItems, m.items)
 		m.items = newItems
 		m.peakItems = current
 	}
