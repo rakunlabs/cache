@@ -2,6 +2,7 @@ package memory_test
 
 import (
 	"fmt"
+	"runtime"
 	"sync"
 	"testing"
 	"time"
@@ -153,5 +154,57 @@ func Test_Memory_NoTTL_NoLimit(t *testing.T) {
 		if v != i {
 			t.Errorf("value mismatch for key-%d after wait: got %d, want %d", i, v, i)
 		}
+	}
+}
+
+func Test_Memory_Compaction_ReleasesMemory(t *testing.T) {
+	// This test demonstrates that map compaction releases memory after
+	// a large number of items are inserted and then deleted.
+	const (
+		itemCount        = 100_000
+		compactThreshold = 1_000
+	)
+
+	c, err := cache.New[string, []byte](t.Context(),
+		memory.Store,
+		cache.WithStoreConfig(&memory.Config{
+			MaxItems:         0, // no limit
+			TTL:              50 * time.Millisecond,
+			JanitorInterval:  25 * time.Millisecond,
+			CompactThreshold: compactThreshold,
+		}),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Insert many items with large values to make memory usage obvious
+	value := make([]byte, 256)
+	for i := range itemCount {
+		if err := c.Set(t.Context(), fmt.Sprintf("key-%d", i), value); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Measure memory at peak
+	runtime.GC()
+	var memPeak runtime.MemStats
+	runtime.ReadMemStats(&memPeak)
+	t.Logf("Peak HeapAlloc: %d MB", memPeak.HeapAlloc/(1024*1024))
+
+	// Wait for TTL expiration + janitor cleanup + compaction
+	time.Sleep(200 * time.Millisecond)
+
+	// Force GC and measure memory after compaction
+	runtime.GC()
+	var memAfter runtime.MemStats
+	runtime.ReadMemStats(&memAfter)
+	t.Logf("After compaction HeapAlloc: %d MB", memAfter.HeapAlloc/(1024*1024))
+
+	// After compaction, memory should have dropped significantly.
+	// We expect at least 50% reduction from peak since all items expired.
+	if memAfter.HeapAlloc > memPeak.HeapAlloc/2 {
+		t.Errorf("memory not released after compaction: peak=%d bytes, after=%d bytes (expected at least 50%% reduction)",
+			memPeak.HeapAlloc, memAfter.HeapAlloc)
 	}
 }
