@@ -19,7 +19,8 @@ separately with `make test` and `make lint`.
 ## Environment
 
 - Measured on 2026-09-07, before and after expiration indexing in the worktree.
-- Go: `go1.27.0 linux/amd64` (the module minimum and CI version are Go 1.24).
+- Go: `go1.27.0 linux/amd64` (the module minimum and CI version were Go 1.24
+  when these measurements were taken; they are now Go 1.25).
 - CPU: AMD Ryzen 7 5800X, 8 cores / 16 logical CPUs, Microsoft hypervisor.
 - GOMAXPROCS: 1 and 8; this is not a dedicated production host.
 - Tables report the median of three 200 ms benchmark samples, rounded.

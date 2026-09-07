@@ -34,10 +34,10 @@ jobs:
       - name: Run tests
         run: |
           go test -race -covermode=atomic -coverprofile=coverage.out -json ./... > test-report.out
-      - name: Run Redis tests
+      - name: Run Redis unit and Valkey integration tests
         working-directory: store/redis
         run: |
-          go test -race -covermode=atomic -coverprofile=coverage.out -json ./... > test-report.out
+          go test -race -count=1 -timeout=5m -covermode=atomic -coverprofile=coverage.out -json ./... > test-report.out
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v8
         with:
