@@ -23,8 +23,40 @@ failures fail the normal test run; only `-short` explicitly skips integration.
 CI runs the full suite on the Docker-enabled `ubuntu-latest` runner.
 
 Coverage includes binary/empty values, misses, deletion, actual TTL expiration,
-TTL replacement/removal, WRONGTYPE errors, and the GetSet load/cache path. This is
-standalone Valkey coverage, not Cluster, Sentinel, TLS, or Redis-version coverage.
+TTL replacement/removal, WRONGTYPE errors, key prefixes, `Take` (GETDEL), and the
+GetSet load/cache path.
+
+`TestValkeyCluster` starts a three-master Valkey Cluster in one container and
+checks `NewClient` cluster selection (detected from a single address, forced with
+`Cluster`, and multiple addresses), that keys spread across every master, and
+that reads, deletes and `Take` follow slot redirects. Sentinel, TLS and other
+Redis versions are not covered.
+
+Run only the cluster suite:
+
+```sh
+go -C store/redis test -race -count=1 -timeout=5m -run '^TestValkeyCluster$' -v ./...
+```
+
+## Connecting
+
+`Store` takes a caller-owned `redis.UniversalClient`. `NewClient` builds one from
+`ConnConfig` and pings it:
+
+- more than one address, or `Cluster: true`, selects a cluster client;
+- with a single address the server is asked `INFO cluster`; if INFO is denied
+  (for example by an ACL) a standalone client is used.
+
+```go
+client, err := redis.NewClient(ctx, redis.ConnConfig{Address: []string{"redis:6379"}})
+if err != nil { /* ... */ }
+defer client.Close()
+
+c, err := cache.New(ctx, redis.Store(client), cache.WithStoreConfig(redis.Config{
+	TTL:       time.Minute,
+	KeyPrefix: "app_",
+}))
+```
 
 Testcontainers uses v0.44.0 and requires Go 1.25 or newer. Test dependencies are
 confined to this nested module.

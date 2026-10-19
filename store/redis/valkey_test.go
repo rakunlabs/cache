@@ -168,4 +168,34 @@ func TestValkey(t *testing.T) {
 			t.Fatalf("loader calls = %d, want 1", calls)
 		}
 	})
+	t.Run("new-client-standalone", func(t *testing.T) {
+		c, err := store.NewClient(ctx, store.ConnConfig{Address: []string{opts.Addr}})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer func() { _ = c.Close() }()
+		if _, ok := c.(*redis.Client); !ok {
+			t.Fatalf("client = %T, want *redis.Client", c)
+		}
+	})
+	t.Run("prefix-and-take", func(t *testing.T) {
+		c, err := cache.New(ctx, store.Store(client), cache.WithStoreConfig(store.Config{KeyPrefix: "p:"}))
+		if err != nil {
+			t.Fatal(err)
+		}
+		key := t.Name()
+		if err := c.Set(ctx, key, "value"); err != nil {
+			t.Fatal(err)
+		}
+		if got, err := client.Get(ctx, "p:"+key).Result(); err != nil || got != "value" {
+			t.Fatalf("raw Get = %q, %v", got, err)
+		}
+		taker := c.Cacher.(*store.Cache)
+		if got, ok, err := taker.Take(ctx, key); err != nil || !ok || got != "value" {
+			t.Fatalf("Take = %q, %v, %v", got, ok, err)
+		}
+		if _, ok, err := taker.Take(ctx, key); err != nil || ok {
+			t.Fatalf("second Take = %v, %v; want miss", ok, err)
+		}
+	})
 }

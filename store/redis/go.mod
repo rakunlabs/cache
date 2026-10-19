@@ -9,6 +9,7 @@ require (
 	github.com/redis/go-redis/v9 v9.22.0
 	github.com/testcontainers/testcontainers-go v0.44.0
 	github.com/testcontainers/testcontainers-go/modules/valkey v0.44.0
+	github.com/twmb/tlscfg v1.3.0
 )
 
 require (
