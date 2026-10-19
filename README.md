@@ -21,10 +21,18 @@ Set(ctx context.Context, key K, value V) error
 Delete(ctx context.Context, key K) error
 ```
 
-Additonal function for help get-set together.
+Additional function for help get-set together.
 
 ```go
 GetSet(ctx context.Context, key K, fn func() (V, error)) (V, error)
+```
+
+`Take` gets and deletes a key atomically, so a value (for example a one-time
+code) is consumed only once. The memory and redis stores support it; other
+stores return `cache.ErrTakeNotSupported`.
+
+```go
+Take(ctx context.Context, key K) (V, bool, error)
 ```
 
 ### memory
@@ -46,23 +54,29 @@ v, ok, err := priceCache.Get(ctx, "key")
 
 ### redis
 
-Get a redis client and give it to the cache.
+Build a client with `redis.NewClient` (standalone or Redis Cluster, detected
+automatically) or pass any existing `redis.UniversalClient`. The caller owns the
+client and must close it.
 
 ```go
-redisClient, err := connredis.New(connredis.Config{
-    Address: s.container.Address(),
+redisClient, err := redis.NewClient(ctx, redis.ConnConfig{
+    Address: []string{"localhost:6379"},
 })
 if err != nil {
     // handle error
 }
+defer redisClient.Close()
 
-c, err := cache.New(s.T().Context(),
+c, err := cache.New(ctx,
     redis.Store(redisClient),
     cache.WithStoreConfig(redis.Config{
-        TTL: 3 * time.Second,
+        TTL:       3 * time.Second,
+        KeyPrefix: "app_",
     }),
 )
 if err != nil {
     // handle error
 }
 ```
+
+See [store/redis/README.md](store/redis/README.md) for cluster detection and tests.

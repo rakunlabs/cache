@@ -71,6 +71,8 @@ func (c *Cache) Delete(ctx context.Context, key string) error {
 	return nil
 }
 
+var _ cache.Taker[string, string] = (*Cache)(nil)
+
 // Take atomically gets and deletes key with GETDEL (Redis 6.2+), so only one
 // caller can consume a value.
 func (c *Cache) Take(ctx context.Context, key string) (string, bool, error) {

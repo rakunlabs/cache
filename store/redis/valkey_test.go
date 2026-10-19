@@ -190,11 +190,10 @@ func TestValkey(t *testing.T) {
 		if got, err := client.Get(ctx, "p:"+key).Result(); err != nil || got != "value" {
 			t.Fatalf("raw Get = %q, %v", got, err)
 		}
-		taker := c.Cacher.(*store.Cache)
-		if got, ok, err := taker.Take(ctx, key); err != nil || !ok || got != "value" {
+		if got, ok, err := c.Take(ctx, key); err != nil || !ok || got != "value" {
 			t.Fatalf("Take = %q, %v, %v", got, ok, err)
 		}
-		if _, ok, err := taker.Take(ctx, key); err != nil || ok {
+		if _, ok, err := c.Take(ctx, key); err != nil || ok {
 			t.Fatalf("second Take = %v, %v; want miss", ok, err)
 		}
 	})

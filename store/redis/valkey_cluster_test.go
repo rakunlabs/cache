@@ -213,14 +213,13 @@ func TestValkeyCluster(t *testing.T) {
 				}
 			}
 
-			taker := c.Cacher.(*store.Cache)
 			for i := range keys {
 				key := strconv.Itoa(i)
 				if i%2 == 0 {
-					if got, ok, err := taker.Take(ctx, key); err != nil || !ok || got != "value-"+key {
+					if got, ok, err := c.Take(ctx, key); err != nil || !ok || got != "value-"+key {
 						t.Fatalf("Take(%s) = %q, %v, %v", key, got, ok, err)
 					}
-					if _, ok, err := taker.Take(ctx, key); err != nil || ok {
+					if _, ok, err := c.Take(ctx, key); err != nil || ok {
 						t.Fatalf("second Take(%s) = %v, %v; want miss", key, ok, err)
 					}
 				} else if err := c.Delete(ctx, key); err != nil {

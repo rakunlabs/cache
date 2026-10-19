@@ -7,7 +7,10 @@ import (
 	"sync"
 )
 
-var ErrStoreNotExist = errors.New("store does not exist")
+var (
+	ErrStoreNotExist    = errors.New("store does not exist")
+	ErrTakeNotSupported = errors.New("store does not support take")
+)
 
 type Store[K comparable, V any, C any] func(ctx context.Context, config C) (Cacher[K, V], error)
 
@@ -24,6 +27,11 @@ type Cacher[K comparable, V any] interface {
 	Get(ctx context.Context, key K) (V, bool, error)
 	Set(ctx context.Context, key K, value V) error
 	Delete(ctx context.Context, key K) error
+}
+
+// Taker is implemented by stores that can get and delete a key atomically.
+type Taker[K comparable, V any] interface {
+	Take(ctx context.Context, key K) (V, bool, error)
 }
 
 func New[K comparable, V any, C any](ctx context.Context, store Store[K, V, C], opts ...Option[C]) (*Cache[K, V], error) {
@@ -51,6 +59,19 @@ func (c *Cache[K, V]) Close() error {
 		return closer.Close()
 	}
 	return nil
+}
+
+// Take atomically returns and removes key, so a value is consumed by at most
+// one caller, even across processes sharing the store. It returns
+// ErrTakeNotSupported if the store does not implement Taker; there is no
+// non-atomic Get+Delete fallback.
+func (c *Cache[K, V]) Take(ctx context.Context, key K) (V, bool, error) {
+	if taker, ok := c.Cacher.(Taker[K, V]); ok {
+		return taker.Take(ctx, key)
+	}
+
+	var zero V
+	return zero, false, ErrTakeNotSupported
 }
 
 // GetSet loads missing values serially per key, without blocking other keys.

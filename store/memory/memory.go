@@ -275,6 +275,29 @@ func (m *Memory[K, V]) Set(_ context.Context, key K, value V) error {
 	return nil
 }
 
+var _ cache.Taker[string, int] = (*Memory[string, int])(nil)
+
+// Take returns and removes key under a single lock. Expired items are misses.
+func (m *Memory[K, V]) Take(_ context.Context, key K) (V, bool, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	var zero V
+	it, ok := m.items[key]
+	if !ok {
+		return zero, false, nil
+	}
+
+	m.removeItem(it)
+	m.compactIfNeeded()
+
+	if m.ttl > 0 && tummy.Now().After(it.expiration) {
+		return zero, false, nil
+	}
+
+	return it.value, true, nil
+}
+
 func (m *Memory[K, V]) Delete(_ context.Context, key K) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

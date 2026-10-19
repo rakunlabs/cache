@@ -5,7 +5,7 @@ go 1.25.0
 replace github.com/rakunlabs/cache => ../..
 
 require (
-	github.com/rakunlabs/cache v0.4.0
+	github.com/rakunlabs/cache v0.5.0
 	github.com/redis/go-redis/v9 v9.22.0
 	github.com/testcontainers/testcontainers-go v0.44.0
 	github.com/testcontainers/testcontainers-go/modules/valkey v0.44.0

@@ -259,3 +259,59 @@ func TestSharedConfig(t *testing.T) {
 		t.Fatalf("caller config changed: %+v", cfg)
 	}
 }
+
+func TestTake(t *testing.T) {
+	freezeTime(t)
+	ctx := t.Context()
+	m := testMemory(t, Config{TTL: time.Minute})
+	_ = m.Close()
+
+	if _, ok, err := m.Take(ctx, 1); err != nil || ok {
+		t.Fatalf("missing Take = %v, %v", ok, err)
+	}
+
+	_ = m.Set(ctx, 1, 10)
+	_ = m.Set(ctx, 2, 20)
+	if v, ok, err := m.Take(ctx, 1); err != nil || !ok || v != 10 {
+		t.Fatalf("Take = %d, %v, %v; want 10, true, nil", v, ok, err)
+	}
+	if _, ok, _ := m.Take(ctx, 1); ok {
+		t.Fatal("second Take found the key")
+	}
+	checkOrder(t, m, 2)
+	checkExpirationHeap(t, m)
+
+	tummy.AddDuration(2 * time.Minute)
+	if _, ok, err := m.Take(ctx, 2); err != nil || ok {
+		t.Fatalf("expired Take = %v, %v; want miss", ok, err)
+	}
+	if len(m.items) != 0 || m.ll.Len() != 0 {
+		t.Fatal("expired Take left the item behind")
+	}
+	checkExpirationHeap(t, m)
+}
+
+func TestTakeConcurrent(t *testing.T) {
+	ctx := t.Context()
+	m := testMemory(t, Config{})
+	_ = m.Set(ctx, 1, 1)
+
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	winners := 0
+	for range 32 {
+		wg.Go(func() {
+			if _, ok, err := m.Take(ctx, 1); err != nil {
+				t.Error(err)
+			} else if ok {
+				mu.Lock()
+				winners++
+				mu.Unlock()
+			}
+		})
+	}
+	wg.Wait()
+	if winners != 1 {
+		t.Fatalf("winners = %d, want 1", winners)
+	}
+}

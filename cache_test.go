@@ -258,3 +258,40 @@ func TestNewAndClose(t *testing.T) {
 		t.Fatalf("non-closing store: %v", err)
 	}
 }
+
+type takingStore struct {
+	testStore
+}
+
+func (s *takingStore) Take(_ context.Context, key string) (int, bool, error) {
+	v, ok := s.values.LoadAndDelete(key)
+	if !ok {
+		return 0, false, nil
+	}
+	return v.(int), true, nil
+}
+
+func TestTake(t *testing.T) {
+	ctx := t.Context()
+	c := &Cache[string, int]{Cacher: &takingStore{}}
+	if err := c.Set(ctx, "key", 1); err != nil {
+		t.Fatal(err)
+	}
+	if v, ok, err := c.Take(ctx, "key"); err != nil || !ok || v != 1 {
+		t.Fatalf("Take = %d, %v, %v; want 1, true, nil", v, ok, err)
+	}
+	if v, ok, err := c.Take(ctx, "key"); err != nil || ok || v != 0 {
+		t.Fatalf("second Take = %d, %v, %v; want miss", v, ok, err)
+	}
+
+	c.Cacher = &testStore{}
+	if err := c.Set(ctx, "key", 1); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok, err := c.Take(ctx, "key"); !errors.Is(err, ErrTakeNotSupported) || ok {
+		t.Fatalf("unsupported Take = %v, %v; want ErrTakeNotSupported", ok, err)
+	}
+	if v, ok, _ := c.Get(ctx, "key"); !ok || v != 1 {
+		t.Fatal("unsupported Take removed the key")
+	}
+}

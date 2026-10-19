@@ -17,7 +17,7 @@ type ConnConfig struct {
 	// Redis Cluster mode.
 	Address    []string `cfg:"address"     json:"address"`
 	Username   string   `cfg:"username"    json:"username"`
-	Password   string   `cfg:"password"    json:"-"           log:"-"`
+	Password   string   `cfg:"password"    json:"password"    log:"-"`
 	ClientName string   `cfg:"client_name" json:"client_name"`
 	// Cluster forces Redis Cluster mode, including for a single address. When
 	// false and only one address is set, cluster mode is detected with INFO.
