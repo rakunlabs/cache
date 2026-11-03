@@ -23,6 +23,11 @@ type ConnConfig struct {
 	// false and only one address is set, cluster mode is detected with INFO.
 	Cluster bool      `cfg:"cluster" json:"cluster"`
 	TLS     TLSConfig `cfg:"tls"     json:"tls"`
+
+	// CredentialsProvider, when set, is called for every new connection and
+	// overrides Username and Password. Use it for short lived credentials such
+	// as IAM access tokens.
+	CredentialsProvider func(ctx context.Context) (username, password string, err error) `cfg:"-" json:"-"`
 }
 
 // NewClient returns a connected client for cfg. The caller owns the client and
@@ -67,6 +72,8 @@ func newClient(ctx context.Context, cfg ConnConfig, tlsConfig *tls.Config) redis
 		Password:   cfg.Password,
 		ClientName: cfg.ClientName,
 		TLSConfig:  tlsConfig,
+
+		CredentialsProviderContext: cfg.CredentialsProvider,
 	})
 
 	info, err := client.Info(ctx, "cluster").Result()
@@ -86,6 +93,8 @@ func newClusterClient(cfg ConnConfig, tlsConfig *tls.Config) redis.UniversalClie
 		Password:   cfg.Password,
 		ClientName: cfg.ClientName,
 		TLSConfig:  tlsConfig,
+
+		CredentialsProviderContext: cfg.CredentialsProvider,
 	})
 }
 

@@ -58,5 +58,22 @@ c, err := cache.New(ctx, redis.Store(client), cache.WithStoreConfig(redis.Config
 }))
 ```
 
+For short lived credentials, such as Google Cloud Memorystore IAM access
+tokens, set `CredentialsProvider`. It is called for every new connection and
+overrides `Username` and `Password`:
+
+```go
+client, err := redis.NewClient(ctx, redis.ConnConfig{
+	Address: []string{"10.0.0.3:6379"},
+	CredentialsProvider: func(ctx context.Context) (string, string, error) {
+		tok, err := creds.Token(ctx) // cloud.google.com/go/auth credentials
+		if err != nil {
+			return "", "", err
+		}
+		return "default", tok.Value, nil
+	},
+})
+```
+
 Testcontainers uses v0.44.0 and requires Go 1.25 or newer. Test dependencies are
 confined to this nested module.
