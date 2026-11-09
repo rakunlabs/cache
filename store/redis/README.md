@@ -77,3 +77,14 @@ client, err := redis.NewClient(ctx, redis.ConnConfig{
 
 Testcontainers uses v0.44.0 and requires Go 1.25 or newer. Test dependencies are
 confined to this nested module.
+
+### Google Cloud IAM (Memorystore)
+
+The `gcpiam` sub package sets `CredentialsProvider` to an access token from
+Application Default Credentials; each new connection uses the current token.
+
+```go
+cfg := redis.ConnConfig{Address: []string{"10.0.0.3:6379"}, TLS: redis.TLSConfig{Enabled: true}}
+if err := gcpiam.Apply(&cfg); err != nil { /* ... */ }
+client, err := redis.NewClient(ctx, cfg)
+```

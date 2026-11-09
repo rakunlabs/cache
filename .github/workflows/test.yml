@@ -22,10 +22,12 @@ jobs:
           cache-dependency-path: |
             go.sum
             store/redis/go.sum
+            store/redis/gcpiam/go.sum
       - name: Install dependencies
         run: |
           go mod download
           go -C store/redis mod download
+          go -C store/redis/gcpiam mod download
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
@@ -35,6 +37,11 @@ jobs:
         with:
           working-directory: store/redis
           args: --timeout=5m --issues-exit-code 1 --path-mode abs --output.checkstyle.path ${{ github.workspace }}/store/redis/golangci-lint-report.out ./...
+      - name: golangci-lint GCP IAM
+        uses: golangci/golangci-lint-action@v9
+        with:
+          working-directory: store/redis/gcpiam
+          args: --timeout=5m --issues-exit-code 1 --path-mode abs --output.checkstyle.path ${{ github.workspace }}/store/redis/gcpiam/golangci-lint-report.out ./...
       - name: Run tests
         run: |
           go test -race -covermode=atomic -coverprofile=coverage.out -json ./... > test-report.out
@@ -42,15 +49,19 @@ jobs:
         working-directory: store/redis
         run: |
           go test -race -count=1 -timeout=5m -covermode=atomic -coverprofile=coverage.out -json ./... > test-report.out
+      - name: Run GCP IAM tests
+        working-directory: store/redis/gcpiam
+        run: |
+          go test -race -covermode=atomic -coverprofile=coverage.out -json ./... > test-report.out
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v8
         with:
           args: >
             -Dsonar.organization=${{ github.repository_owner }}
             -Dsonar.projectKey=${{ github.repository_owner }}_${{ env.REPOSITORY_NAME }}
-            -Dsonar.go.coverage.reportPaths=coverage.out,store/redis/coverage.out
-            -Dsonar.go.tests.reportPaths=test-report.out,store/redis/test-report.out
-            -Dsonar.go.golangci-lint.reportPaths=golangci-lint-report.out,store/redis/golangci-lint-report.out
+            -Dsonar.go.coverage.reportPaths=coverage.out,store/redis/coverage.out,store/redis/gcpiam/coverage.out
+            -Dsonar.go.tests.reportPaths=test-report.out,store/redis/test-report.out,store/redis/gcpiam/test-report.out
+            -Dsonar.go.golangci-lint.reportPaths=golangci-lint-report.out,store/redis/golangci-lint-report.out,store/redis/gcpiam/golangci-lint-report.out
             -Dsonar.sources=.
             -Dsonar.exclusions=**/vendor/**,**/*_test.go,example/**
             -Dsonar.tests=.
